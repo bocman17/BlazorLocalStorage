@@ -1,0 +1,44 @@
+﻿@page "/counter"
+@inject IJSRuntime Js
+@inject ILocalStorageService localStorage
+
+<PageTitle>Counter</PageTitle>
+
+<h1>Counter</h1>
+
+<p role="status">Current count: @currentCount</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+<button class="btn btn-primary" @onclick="SaveCount">Save to LS</button>
+<button class="btn btn-primary" @onclick="GetCount">Click to get LS count</button>
+
+@code {
+    private int currentCount = 0;
+
+    private void IncrementCount()
+    {
+        currentCount++;
+        //await Js.InvokeVoidAsync("localStorage.setItem", "count", currentCount);
+    }
+
+    private async Task SaveCount() 
+    {
+        var localStorageCount = await localStorage.GetItemAsync<string>("count");
+        if (localStorageCount is null)
+        {
+            await localStorage.SetItemAsync("count", currentCount);
+        }
+        else
+        {
+            await localStorage.SetItemAsync("count", int.Parse(await localStorage.GetItemAsync<string>("count")) + currentCount);
+        }
+        currentCount = 0;
+    }
+
+    private async Task GetCount()
+    {
+        //var localStorageCount = await Js.InvokeAsync<string>("localStorage.getItem", "count");
+        var localStorageCount = await localStorage.GetItemAsync<string>("count");
+        Console.WriteLine($"Current count = {localStorageCount}");
+    }
+}
